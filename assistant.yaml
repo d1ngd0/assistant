@@ -1,0 +1,10 @@
+# Specify all the configuration for the http server
+http:
+  # Address specifies the address and port to listen on.
+  # `:http` (default) listens on "0.0.0.0:80"
+  # `127.0.0.1` listens on local host only, port 80
+  addr: ":8080"
+models:
+  noop:
+    type: noop
+    
