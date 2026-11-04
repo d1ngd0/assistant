@@ -2,9 +2,11 @@ package api
 
 import (
 	"encoding/json"
-	"github.com/d1ngd0/assistant/state"
+	"errors"
 	"io"
 	"net/http"
+
+	"github.com/d1ngd0/assistant/state"
 )
 
 // Prompt is the payload the prompt handler takes.
@@ -14,12 +16,27 @@ type Prompt struct {
 	Message string `json:"message"`
 }
 
+func (p *Prompt) Validate() error {
+	if p.Session == "" {
+		return requiredError("session")
+	}
+
+	if p.Model == "" {
+		return requiredError("model")
+	}
+
+	if p.Message == "" {
+		return requiredError("message")
+	}
+
+	return nil
+}
+
 // PromptHandler takes a [Prompt] payload as a json body
 // URI: /prompt
 // Methods: PUT, POST
 func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.Handler {
 	return WithMethod(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-
 		b, err := io.ReadAll(req.Body)
 		if err != nil {
 			R500(w, err)
@@ -32,10 +49,20 @@ func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.
 			return
 		}
 
+		if err := prompt.Validate(); err != nil {
+			R400(w, err.Error())
+			return
+		}
+
 		session := sessions.Fetch(prompt.Session)
 		model, err := models.Get(prompt.Model)
 		if err != nil {
-			R500(w, err)
+			switch {
+			case errors.Is(err, state.ErrModelNotFound):
+				R400(w, err.Error())
+			default:
+				R500(w, err)
+			}
 			return
 		}
 

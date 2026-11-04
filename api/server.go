@@ -2,6 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"slices"
@@ -13,6 +15,8 @@ import (
 var (
 	Log  *log.Logger
 	ELog *log.Logger
+
+	ErrRequired = errors.New("required field not specified")
 )
 
 // must returns the value when no error is present, otherwise it panics
@@ -77,4 +81,8 @@ func WithMethod(handle http.Handler, methods ...string) http.Handler {
 
 		R404(w)
 	})
+}
+
+func requiredError(field string) error {
+	return fmt.Errorf("%w: %s", ErrRequired, field)
 }
