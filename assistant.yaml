@@ -7,4 +7,9 @@ http:
 models:
   noop:
     type: noop
+  ollama:
+    type: ollama
+    url: http://homelab.local.lan:11434
+    model: qwen3.5:9b
+    think: false
     

@@ -1,5 +1,5 @@
 <div hx-swap-oob="beforeend:#dialog">
-  <div class="border rounded-1 border-subtle-info">
-    {{ . | md2html }}
+  <div class="text-start border rounded-1 {{ if eq .Role "assistant" }}bg-light border-info{{ else }}border-success{{ end }}">
+    {{ .Content | md2html }}
   </div>
 </div>

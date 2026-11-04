@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 	"slices"
+
+	"github.com/d1ngd0/assistant/state"
 )
 
 // tmpl creates a set of templates from the
@@ -24,12 +26,13 @@ func must[T any](v T, err error) T {
 
 // LoadRoutes specifies all of the route available for the ui. If the ui has a page
 // and you want to find it, it better be in this list. Nothing is hidden from you.
-func LoadRoutes(mux *http.ServeMux) *http.ServeMux {
+func LoadRoutes(mux *http.ServeMux, models *state.ModelRegistery, sessions *state.Sessions) *http.ServeMux {
 	// Serve the data out of static
 	mux.Handle("/static/", http.FileServerFS(Static))
+	uiSession := Sessions{sessions}
 
-	mux.Handle("/prompt", ExplicitPath(WithMethod(&Prompt{}, http.MethodPost), "/prompt"))
-	mux.Handle("/session/{session}/context", http.HandlerFunc(ActiveSessions.ServeContext))
+	mux.Handle("/prompt", ExplicitPath(WithMethod(&Prompt{models: models, sessions: &uiSession}, http.MethodPost), "/prompt"))
+	mux.Handle("/session/{session}/context", http.HandlerFunc(uiSession.ServeContext))
 
 	// Set up the UI with the appropriate endpoints
 	mux.Handle("/index", ExplicitPath(&Index{}, "/index"))

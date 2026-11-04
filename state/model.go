@@ -1,4 +1,4 @@
-package ui
+package state
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	Models           ModelRegistery
 	ErrModelNotFound = errors.New("model not found")
 	ErrModelInvalid  = errors.New("model configuration invalid")
 )
@@ -83,7 +82,7 @@ func (mr *ModelRegistery) Get(name string) (Model, error) {
 	return model, nil
 }
 
-type ResponseSync func(msg string) error
+type ResponseSync func(msg Message) error
 
 // Model is the interface any implementation of model must
 // implement to work with the assistent
@@ -92,11 +91,18 @@ type Model interface {
 	// being the most recent message to preserve historical context. Finally the
 	// sync is a callback function used to write the response. Send can return as
 	// soon as the request has begun.
-	Send(ctx context.Context, msgs []string, sync ResponseSync) error
+	Send(ctx context.Context, msgs []Message, sync ResponseSync) error
 }
 
-type ModelFn func(ctx context.Context, msgs []string, sync ResponseSync) error
+type ModelFn func(ctx context.Context, msgs []Message, sync ResponseSync) error
 
-func (mf ModelFn) Send(ctx context.Context, msgs []string, sync ResponseSync) error {
+func (mf ModelFn) Send(ctx context.Context, msgs []Message, sync ResponseSync) error {
 	return mf(ctx, msgs, sync)
+}
+
+type Message interface {
+	Role() string
+	Content() string
+	Thought() string
+	// TODO: Image
 }
