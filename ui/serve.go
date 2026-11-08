@@ -29,13 +29,18 @@ func must[T any](v T, err error) T {
 func LoadRoutes(mux *http.ServeMux, models *state.ModelRegistery, sessions *state.Sessions) *http.ServeMux {
 	// Serve the data out of static
 	mux.Handle("/static/", http.FileServerFS(Static))
-	uiSession := Sessions{sessions}
 
-	mux.Handle("/prompt", ExplicitPath(WithMethod(&Prompt{models: models, sessions: &uiSession}, http.MethodPost), "/prompt"))
-	mux.Handle("/session/{session}/context", http.HandlerFunc(uiSession.ServeContext))
+	mux.Handle("/prompt",
+		ExplicitPath(
+			WithMethod(
+				ServePrompt(models, sessions),
+				http.MethodPost),
+			"/prompt"))
+
+	mux.Handle("/session/{session}/context", ServeContext(sessions))
 
 	// Set up the UI with the appropriate endpoints
-	mux.Handle("/index", ExplicitPath(&Index{}, "/index"))
+	mux.Handle("/index", ExplicitPath(ServeIndex(), "/index"))
 	mux.Handle("/", ExplicitPath(http.RedirectHandler("/index", http.StatusMovedPermanently), "/"))
 
 	return mux

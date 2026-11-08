@@ -2,6 +2,7 @@ package state
 
 import (
 	"iter"
+	"slices"
 	"sync"
 )
 
@@ -15,6 +16,18 @@ func (s *Sessions) init() {
 	s.o.Do(func() {
 		s.Sessions = make(map[string]*Session)
 	})
+}
+
+// Names returns the names in the current session
+func (s *Sessions) Names() []string {
+	var names []string
+	for key := range s.Sessions {
+		names = append(names, key)
+	}
+
+	slices.Sort(names)
+
+	return names
 }
 
 // Get returns the session

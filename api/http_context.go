@@ -28,7 +28,7 @@ func ContextHandler(sessions *state.Sessions) http.Handler {
 		}
 
 		var context []Message
-		for msg, _ := range session.Contexts(0) {
+		for msg := range session.Contexts(0) {
 			context = append(context, Message{
 				Content: msg.Content(),
 				Role:    msg.Role(),

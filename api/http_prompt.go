@@ -36,7 +36,7 @@ func (p *Prompt) Validate() error {
 // URI: /prompt
 // Methods: PUT, POST
 func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.Handler {
-	return WithMethod(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		b, err := io.ReadAll(req.Body)
 		if err != nil {
 			R500(w, err)
@@ -71,5 +71,5 @@ func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.
 			R500(w, err)
 			return
 		}
-	}), http.MethodPut, http.MethodPost)
+	})
 }

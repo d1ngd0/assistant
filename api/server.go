@@ -31,8 +31,13 @@ func must[T any](v T, err error) T {
 // and you want to find it, it better be in this list. Nothing is hidden from you.
 func LoadRoutes(mux *http.ServeMux, models *state.ModelRegistery, sessions *state.Sessions) *http.ServeMux {
 	mux.Handle("/session/{session}/context", ContextHandler(sessions))
+	mux.Handle("/sessions", SessionsHandler(sessions))
 
-	mux.Handle("/prompt", PromptHandler(sessions, models))
+	mux.Handle("/prompt",
+		WithMethod(
+			PromptHandler(sessions, models),
+			http.MethodPost,
+			http.MethodPut))
 
 	mux.Handle("/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		R404(w)
