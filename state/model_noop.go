@@ -6,34 +6,47 @@ import (
 
 const ModelTypeNoOp = "noop"
 
-func init() {
+const RoleUser = "user"
+
+type Msg struct {
+	role    string
+	content string
+	thought string
 }
 
-type StringMessage struct {
-	msg string
+func StringMsg(msg string) *Msg {
+	return &Msg{
+		role:    RoleUser,
+		content: msg,
+		thought: "",
+	}
 }
 
-func Msg(msg string) StringMessage {
-	return StringMessage{msg: msg}
+func NewMsg(role, content, thought string) *Msg {
+	return &Msg{
+		role:    role,
+		content: content,
+		thought: thought,
+	}
 }
 
 // Content implements [Message].
-func (s StringMessage) Content() string {
-	return s.msg
+func (s *Msg) Content() string {
+	return s.content
 }
 
 // Role implements [Message].
-func (s StringMessage) Role() string {
-	return "user"
+func (s *Msg) Role() string {
+	return s.role
 }
 
 // Thought implements [Message].
-func (s StringMessage) Thought() string {
-	return ""
+func (s *Msg) Thought() string {
+	return s.thought
 }
 
-var _ Message = StringMessage{msg: ""}
+var _ Message = (*Msg)(nil)
 
 func NoOpModel(ctx context.Context, msgs []Message, sync ResponseSync) error {
-	return sync(StringMessage{msg: "This is a no op model"})
+	return sync(StringMsg("This is a no op model"))
 }

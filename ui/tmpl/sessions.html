@@ -1,0 +1,16 @@
+<div hx-swap-oob="innerhtml:#sessions">
+  <div class="text-start border rounded-1">
+      <ul class="navbar-nav">
+        {{- $active := .Active -}}
+        {{ range .Names -}}
+        <li class="nav-item">
+          <a {{ if eq . $active }}class="nav-link active d-inline"  aria-current="page"{{ else }}class="nav-link d-inline"{{ end }} href="/{{ . }}">{{ . }}</a>
+          {{ if ne . $active }}
+          <button type="button" class="btn-close d-inline btn-sm" aria-label="Close" hx-delete="/session/{{ . }}"></button>
+          {{ end }}
+        </li>
+        {{- end }}
+      </ul>
+  </div>
+</div>
+

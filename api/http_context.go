@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/d1ngd0/assistant/state"
@@ -43,5 +44,40 @@ func ContextHandler(sessions *state.Sessions) http.Handler {
 		}
 
 		_, _ = rw.Write(b)
+	})
+}
+
+func ContextAppendHandler(sessions *state.Sessions) http.Handler {
+	type requestBody struct {
+		Message string `json:"message"`
+	}
+
+	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		name := req.PathValue("session")
+		if name == "" {
+			R404(rw)
+			return
+		}
+		session := sessions.Fetch(name)
+
+		b, err := io.ReadAll(req.Body)
+		if err != nil {
+			R500(rw, err)
+			return
+		}
+
+		var body requestBody
+		if err := json.Unmarshal(b, &body); err != nil {
+			R500(rw, err)
+			return
+		}
+
+		if body.Message == "" {
+			R400(rw, requiredError("message"))
+			return
+		}
+
+		_ = session.Push(state.StringMsg(body.Message))
+		rw.WriteHeader(http.StatusCreated)
 	})
 }

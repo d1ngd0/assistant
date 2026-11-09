@@ -13,6 +13,7 @@ build: test
 # Retrieved 2026-10-19, License - CC BY-SA 3.0
 run:
     #!/bin/sh
+    set -e
 
     sigint_handler()
     {
@@ -20,7 +21,7 @@ run:
       exit
     }
 
-    trap sigint_handler SIGINT
+    trap sigint_handler EXIT
 
     while true; do
       just build

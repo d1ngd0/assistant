@@ -18,7 +18,7 @@ func ServePrompt(models *state.ModelRegistery, sessions *state.Sessions) http.Ha
 			return
 		}
 
-		err = model.Send(req.Context(), session.Push(state.Msg(input)), session.Sync)
+		err = model.Send(req.Context(), session.Push(state.StringMsg(input)), session.Sync)
 		if err != nil {
 			R500(w, req, err)
 			return

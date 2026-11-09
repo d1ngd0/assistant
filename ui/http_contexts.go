@@ -27,7 +27,7 @@ func HandleWSContexts(session *state.Session) websocket.Handler {
 		var index int
 		for {
 			for msg, x := range session.Contexts(index) {
-				SendWSContext(ws, msg)
+				SendWS(ws, "msg.html", msg)
 				index = x + 1
 			}
 
@@ -41,9 +41,9 @@ func HandleWSContexts(session *state.Session) websocket.Handler {
 
 }
 
-func SendWSContext(ws *websocket.Conn, msg state.Message) {
+func SendWS(ws *websocket.Conn, tmplName string, val any) {
 	var buf bytes.Buffer
-	err := tmpl.ExecuteTemplate(&buf, "msg.html", msg)
+	err := tmpl.ExecuteTemplate(&buf, tmplName, val)
 	if err != nil {
 		buf.Reset()
 		Log.Printf("Issue rendering output: %s", err)

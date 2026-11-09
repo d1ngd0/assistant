@@ -99,10 +99,3 @@ type ModelFn func(ctx context.Context, msgs []Message, sync ResponseSync) error
 func (mf ModelFn) Send(ctx context.Context, msgs []Message, sync ResponseSync) error {
 	return mf(ctx, msgs, sync)
 }
-
-type Message interface {
-	Role() string
-	Content() string
-	Thought() string
-	// TODO: Image
-}

@@ -50,7 +50,7 @@ func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.
 		}
 
 		if err := prompt.Validate(); err != nil {
-			R400(w, err.Error())
+			R400(w, err)
 			return
 		}
 
@@ -59,14 +59,14 @@ func PromptHandler(sessions *state.Sessions, models *state.ModelRegistery) http.
 		if err != nil {
 			switch {
 			case errors.Is(err, state.ErrModelNotFound):
-				R400(w, err.Error())
+				R400(w, err)
 			default:
 				R500(w, err)
 			}
 			return
 		}
 
-		err = model.Send(req.Context(), session.Push(state.Msg(prompt.Message)), session.Sync)
+		err = model.Send(req.Context(), session.Push(state.StringMsg(prompt.Message)), session.Sync)
 		if err != nil {
 			R500(w, err)
 			return

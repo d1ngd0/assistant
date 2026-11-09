@@ -37,11 +37,14 @@ func LoadRoutes(mux *http.ServeMux, models *state.ModelRegistery, sessions *stat
 				http.MethodPost),
 			"/prompt"))
 
-	mux.Handle("/session/{session}/context", ServeContext(sessions))
+	mux.Handle("/session/{session}/context", WithMethod(ServeContext(sessions), http.MethodGet))
+	mux.Handle("/session/{session}", WithMethod(DeleteSessionHandler(sessions), http.MethodDelete))
+	mux.Handle("/session", WithMethod(ExplicitPath(AddSessionHandler(sessions), "/session"), http.MethodPost))
+	mux.Handle("/sessions", WithMethod(ExplicitPath(SessionsHandler(sessions), "/sessions"), http.MethodGet))
 
 	// Set up the UI with the appropriate endpoints
-	mux.Handle("/index", ExplicitPath(ServeIndex(), "/index"))
-	mux.Handle("/", ExplicitPath(http.RedirectHandler("/index", http.StatusMovedPermanently), "/"))
+	mux.Handle("/{session}", ServeIndex())
+	mux.Handle("/", ExplicitPath(http.RedirectHandler("/default", http.StatusMovedPermanently), "/"))
 
 	return mux
 }
@@ -75,7 +78,13 @@ func WithMethod(handle http.Handler, methods ...string) http.Handler {
 func R404(w http.ResponseWriter, r *http.Request) {
 	// TODO: Make this pretty
 	http.NotFound(w, r)
-	_, _ = w.Write([]byte("oh fuck buddy"))
+}
+
+// R404 returns the 404 page
+func R400(w http.ResponseWriter, msg string) {
+	// TODO: Make this pretty
+	w.WriteHeader(http.StatusBadRequest)
+	w.Write([]byte(msg))
 }
 
 // R500 returns the 500 level error
